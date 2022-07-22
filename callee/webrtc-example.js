@@ -10,7 +10,9 @@ websocketConnection.onopen = function(evt) {
 
 
 websocketConnection.onmessage = function(evt) {
-	onOfferReceived(evt.data);
+
+	var obj = JSON.parse(evt.data);
+	onOfferReceived(obj.sdp);
 }
 
 websocketConnection.onclose = function(evt) {
@@ -36,7 +38,9 @@ async function getLocalMediaStreams() {
 getLocalMediaStreams();
 
 
+const configuration = {'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}], 'bundlePolicy': 'max-bundle'};
 
+pc = new RTCPeerConnection(configuration);
 
 
 function onOfferReceived(offer) {
@@ -46,42 +50,37 @@ function onOfferReceived(offer) {
                 audio: true,
 	};
 
-	const configuration = {'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]}
-
-	pc = new RTCPeerConnection(configuration);
-
 	pc.ontrack = function(ev) {
 
-		console.log("pc.ontrack(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">> Streams length: <<" + ev.streams.length + ">> Stream Id: <<" + ev.streams[0].id + ">> #Tracks in stream: <<" + ev.streams[0].getTracks().length + ">>" );
+		console.log("pc.ontrack(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">>");
+
+		//console.log("pc.ontrack(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">> Streams length: <<" + ev.streams.length + ">> Stream Id: <<" + ev.streams[0].id + ">> #Tracks in stream: <<" + ev.streams[0].getTracks().length + ">>" );
 
 		if ( ev.transceiver.mid == "1" ) {
-                        remoteVideoStream = new MediaStream([ev.streams[0].getAudioTracks()[0], ev.track]);
+                        //remoteVideoStream = new MediaStream([ev.streams[0].getAudioTracks()[0], ev.track]);
+			remoteVideoStream = new MediaStream([ ev.track ]);
                         console.log("New stream id: <<" + remoteVideoStream.id + ">> " + remoteVideoStream.getTracks().length);
                         document.getElementById("videoStream").srcObject = remoteVideoStream;
                 } 
-		/*
-		else if ( ev.transceiver.mid == "2" ) {
-                        this.secondVideoMediaStream = new MediaStream([ ev.track ]);
-                        console.log("New stream id: <<" + this.secondVideoMediaStream.id + ">> " + this.secondVideoMediaStream.getTracks().length);
-                        document.getElementById(this.remoteVideoId[1]).srcObject = this.secondVideoMediaStream;
-		}
-		*/
 	}
 
 
-	localMediaStreams.getTracks().forEach(track => pc.addTransceiver(track, { direction: "sendrecv" }));
+	//localMediaStreams.getTracks().forEach(track => pc.addTransceiver(track, { direction: "sendrecv" }));
+	localMediaStreams.getTracks().forEach(track => pc.addTrack(track, localMediaStreams));
         //pc.addTransceiver("video", { direction: "recvonly" } );
 
 	pc.onicecandidate = function(iceevt) {
 		if ( iceevt.candidate == null ) {
 			console.log("pc.onicecandidate(): Completed!");
-			sendAnswerToCaller();
+			//sendAnswerToCaller();
+			waitTwoSeconds();
 		} else {
 			console.log("pc.onicecandidate(): Got an ice candidate: <<" + iceevt.candidate.candidate + ">>");
 		}
 	};
 
 	console.log("onOfferReceived(): Setting received offer as remote description.");
+	console.log("onOfferReceived(): OFFER: " + JSON.stringify(offer) + ">>");
 	pc.setRemoteDescription(offer).then(function() {
 		console.log("onOfferReceived(): Creating local answe SDP.");
 		pc.createAnswer().then(function(description) {
@@ -93,6 +92,9 @@ function onOfferReceived(offer) {
 }
 
 
+function waitTwoSeconds() {
+	setTimeout(sendAnswerToCaller, 2000);
+}
 
 
 function sendAnswerToCaller() {
