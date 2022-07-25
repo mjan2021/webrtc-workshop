@@ -52,14 +52,28 @@ function onOfferReceived(offer) {
 
 	pc.ontrack = function(ev) {
 
-		console.log("pc.ontrack(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">>");
+		console.log("pc.ontrack(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">> Streams Length: <<" + ev.streams.length + ">>" );
 
 		//console.log("pc.ontrack(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">> Streams length: <<" + ev.streams.length + ">> Stream Id: <<" + ev.streams[0].id + ">> #Tracks in stream: <<" + ev.streams[0].getTracks().length + ">>" );
 
+		if ( ev.transceiver.mid == "0" ) {
+			if ( remoteVideoStream == null ) {
+				remoteVideoStream = new MediaStream([ ev.track ]);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length + " New stream.");
+			} else {
+				pc.addTrack(ev.track, remoteMediaStream);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length);
+			}
+		}
+
 		if ( ev.transceiver.mid == "1" ) {
-                        //remoteVideoStream = new MediaStream([ev.streams[0].getAudioTracks()[0], ev.track]);
-			remoteVideoStream = new MediaStream([ ev.track ]);
-                        console.log("New stream id: <<" + remoteVideoStream.id + ">> " + remoteVideoStream.getTracks().length);
+			if ( remoteVideoStream == null ) {
+				remoteVideoStream = new MediaStream([ ev.track ]);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length + " New stream.");
+			} else {
+				remoteVideoStream.addTrack(ev.track);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length);
+			}
                         document.getElementById("videoStream").srcObject = remoteVideoStream;
                 } 
 	}
