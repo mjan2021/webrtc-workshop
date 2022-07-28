@@ -1,3 +1,4 @@
+// Callee
 
 var websocketConnection = new WebSocket("wss://guident.bluepepper.us:8848");
 
@@ -64,24 +65,26 @@ function onOfferReceived(offer) {
 				pc.addTrack(ev.track, remoteMediaStream);
                         	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length);
 			}
+			document.getElementById("videoStream").srcObject = remoteVideoStream;
+               
 		}
 
-		if ( ev.transceiver.mid == "1" ) {
-			if ( remoteVideoStream == null ) {
-				remoteVideoStream = new MediaStream([ ev.track ]);
-                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length + " New stream.");
-			} else {
-				remoteVideoStream.addTrack(ev.track);
-                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length);
-			}
-                        document.getElementById("videoStream").srcObject = remoteVideoStream;
-                } 
+		// if ( ev.transceiver.mid == "1" ) {
+		// 	if ( remoteVideoStream == null ) {
+		// 		remoteVideoStream = new MediaStream([ ev.track ]);
+        //                 	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length + " New stream.");
+		// 	} else {
+		// 		remoteVideoStream.addTrack(ev.track);
+        //                 	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length);
+		// 	}
+        //                 document.getElementById("videoStream").srcObject = remoteVideoStream;
+        //         } 
 	}
 
 
 	//localMediaStreams.getTracks().forEach(track => pc.addTransceiver(track, { direction: "sendrecv" }));
-	localMediaStreams.getTracks().forEach(track => pc.addTrack(track, localMediaStreams));
-        //pc.addTransceiver("video", { direction: "recvonly" } );
+	localMediaStreams.getAudioTracks().forEach(track => pc.addTrack(track, localMediaStreams));
+        pc.addTransceiver("video", { direction: "sendonly" } );
 
 	pc.onicecandidate = function(iceevt) {
 		if ( iceevt.candidate == null ) {

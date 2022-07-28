@@ -1,4 +1,4 @@
-
+// Caller
 var websocketConnection = new WebSocket("wss://guident.bluepepper.us:8848");
 
 websocketConnection.onopen = function(evt) {
@@ -52,7 +52,7 @@ function onStartPressed() {
 
 		console.log("onStartPressed(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">> " );
 		//console.log("onStartPressed(): Got a track! Id: <<" + ev.track.id + ">> Kind: <<" + ev.track.kind + ">> Mid: <<" + ev.transceiver.mid + ">> Label: <<" + ev.track.label + ">> Streams length: <<" + ev.streams.length + ">> Stream Id: <<" + ev.streams[0].id + ">> #Tracks in stream: <<" + ev.streams[0].getTracks().length + ">>" );
-
+/*
 		if ( ev.transceiver.mid == "1" ) {
                         //remoteVideoStream = new MediaStream([ev.streams[0].getAudioTracks()[0], ev.track]);
                         remoteVideoStream = new MediaStream([ev.track]);
@@ -60,18 +60,40 @@ function onStartPressed() {
                         document.getElementById("videoStream").srcObject = remoteVideoStream;
                 } 
 
-		/*
+		
 		else if ( ev.transceiver.mid == "2" ) {
                         this.secondVideoMediaStream = new MediaStream([ ev.track ]);
                         console.log("New stream id: <<" + this.secondVideoMediaStream.id + ">> " + this.secondVideoMediaStream.getTracks().length);
                         document.getElementById(this.remoteVideoId[1]).srcObject = this.secondVideoMediaStream;
 		}
 		*/
+		
+		if ( ev.transceiver.mid == "0" ) {
+			if ( remoteVideoStream == null ) {
+				remoteVideoStream = new MediaStream([ ev.track ]);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length + " New stream.");
+			} else {
+				pc.addTrack(ev.track, remoteMediaStream);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length);
+			}
+		}
+
+		if ( ev.transceiver.mid == "1" ) {
+			if ( remoteVideoStream == null ) {
+				remoteVideoStream = new MediaStream([ ev.track ]);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length + " New stream.");
+			} else {
+				remoteVideoStream.addTrack(ev.track);
+                        	console.log("New stream id: <<" + remoteVideoStream.id + ">> # tracks: " + remoteVideoStream.getTracks().length);
+			}
+                        document.getElementById("videoStream").srcObject = remoteVideoStream;
+                } 
+	
 	}
 
 
-	localMediaStreams.getTracks().forEach(track => pc.addTransceiver(track, { direction: "sendrecv" }));
-        //pc.addTransceiver("video", { direction: "recvonly" } );
+	localMediaStreams.getAudioTracks().forEach(track => pc.addTransceiver(track, { direction: "sendrecv" }));
+        pc.addTransceiver("video", { direction: "recvonly" } );
 
 
 	pc.onicecandidate = function(iceevt) {
