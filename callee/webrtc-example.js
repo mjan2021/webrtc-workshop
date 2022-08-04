@@ -32,8 +32,45 @@ var localMediaStreams = null;
 var remoteVideoStream = null;
 
 async function getLocalMediaStreams() {
-        localMediaStreams = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-}
+			// localMediaStreams = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+			var streamDevicesList = {}
+		if (!navigator.mediaDevices?.enumerateDevices) {
+			console.log("enumerateDevices() not supported.");
+		  } else {
+			// List cameras and microphones.
+			navigator.mediaDevices.enumerateDevices()
+			  .then((devices) => {
+				
+				// streamDevicesList=devices
+				devices.forEach((device) => {
+				if(device.kind == "videoinput"){
+					console.log("<<device : "+device.kind+" << devideID: "+device.deviceId+" <<")
+					localMediaStreams = navigator.mediaDevices.getUserMedia({
+						video: {
+							deviceId: {
+								exact: device.deviceId
+							}
+						}
+					})
+				}
+				});
+			  })
+			  .catch((err) => {
+				console.error(`${err.name}: ${err.message}`);
+			  });
+		  }
+		  
+		//   streamDevicesList.forEach((device) => {
+		// 	if(device.kind == "videoinput"){
+		// 	navigator.mediaDevices.getUserMedia({audio: true, video : {
+		// 		deviceId: {
+		// 			exact: device.deviceId
+		// 				}
+		// 			}
+		// 		})
+		//   	}
+		// })
+	}
 
 
 getLocalMediaStreams();
@@ -81,10 +118,12 @@ function onOfferReceived(offer) {
         //         } 
 	}
 
-
-	//localMediaStreams.getTracks().forEach(track => pc.addTransceiver(track, { direction: "sendrecv" }));
-	localMediaStreams.getAudioTracks().forEach(track => pc.addTrack(track, localMediaStreams));
+	console.log(localMediaStreams.length)
+	localMediaStreams.getTracks().forEach(track => pc.addTransceiver(track, { direction: "sendrecv" }));
+	// localMediaStreams.getAudioTracks().forEach(track => pc.addTrack(track, localMediaStreams));
         pc.addTransceiver("video", { direction: "sendonly" } );
+		pc.addTransceiver("video", { direction: "sendonly" } );
+		pc.addTransceiver("video", { direction: "sendonly" } );
 
 	pc.onicecandidate = function(iceevt) {
 		if ( iceevt.candidate == null ) {
