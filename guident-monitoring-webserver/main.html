@@ -11,36 +11,46 @@
 </head>
 <body>
     <!-- <div id="data"></div> -->
-    <h2 class="users-header">Users</h2>
-    <table class="table" id="users-table" border="1">
-        <thead>
-            <tr>
-                <th>User ID</th>
-                <th> Connected_to</th>
+    <div class="container">
 
-                <!-- Add more table headers as needed -->
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+        <h2 class="users-header">Users</h2>
+        <table class="table table-sm table-striped" id="users-table" border="1">
+            <thead class="thead-dark">
+                <tr>
+                    <th>User ID</th>
+                    <th>User Name</th>
+                    <th>Connected_ID</th>
+                    <th>Connected_to</th>
+                    <th>Connected At</th>
+                    
+                    <!-- Add more table headers as needed -->
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-    <h2 class="vehicles-header">Vehicles</h2>
-    <table class="table" id="vehicles-table" border="1">
-        <thead>
-            <tr>
-                <th>Vehicle ID</th>
-                <th>Connected_to</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Speed</th>
-                <th>Rssi</th>
-                <th>Rsrq</th>
-                <th>Sinr</th>
-                <!-- Add more table headers as needed -->
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="container">
+        <h2 class="vehicles-header">Vehicles</h2>
+        <table class="table table-sm table-striped" id="vehicles-table" border="1">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Vehicle ID</th>
+                    <th>Connetion ID</th>
+                    <th>Connected_to</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Speed</th>
+                    <th>Rssi</th>
+                    <th>Rsrq</th>
+                    <th>Sinr</th>
+                    <!-- Add more table headers as needed -->
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
 
 </body>
 </html>

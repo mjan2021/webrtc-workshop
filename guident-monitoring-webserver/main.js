@@ -1,5 +1,6 @@
 console.log('Javascript Loaded!!')
-
+const guidentApi = 'https://dev.bluepepper.us/api';
+const guidentServer = 'https://guident.bluepepper.us:8444';
 function displayData(data) {
     const dataDisplayElement = document.getElementById('data');
 
@@ -33,30 +34,36 @@ function displayDataInTables(data) {
     displayVehiclesData(data);
 }
 
+
 // Function to display users data
 function displayUsersData(data) {
-    // const usersHeader = document.getElementsByClassName('users-header');
-    // console.log(data.connections.users.split(',').length)
-    // usersHeader.textContent = "Users: "+data.connections.users.split(',').length;
     const usersTableBody = document.getElementById('users-table').getElementsByTagName('tbody')[0];
 
-    // Check if users data is present
-    if (data.connections.users !== "") {
-        // Assuming user data is a comma-separated string
-        const userIds = data.connections.users.split(',');
-
-        userIds.forEach(userId => {
+    for (const userId in data.connections.users) {
+        if (data.connections.users.hasOwnProperty(userId)) {
+            const userData = data.connections.users[userId];
+            getDetail('first_name', userData["user-id"])
             const row = document.createElement('tr');
-            const useridCell = document.createElement('td');
+            const idCell = document.createElement('td');
+            const nameCell = document.createElement('td');
+            const connectionIdCell = document.createElement('td');
             const connectedToCell = document.createElement('td');
-            useridCell.textContent = userId;
-            connectedToCell.textContent = data.connections.users[userId]["engagement-connection-id"];
+            const connectedAtCell = document.createElement('td');
 
-            row.appendChild(useridCell);
+            idCell.textContent = userData["user-id"];
+            nameCell.textContent = userData["user-name"];
+            connectionIdCell.textContent = userData["connection-id"];
+            connectedToCell.textContent = userData["engagement-connection-id"];
+            connectedAtCell.textContent = userData["connectedAt"];
+
+            row.appendChild(idCell);
+            row.appendChild(nameCell);
+            row.appendChild(connectionIdCell);
             row.appendChild(connectedToCell);
-            
+            row.appendChild(connectedAtCell);
+
             usersTableBody.appendChild(row);
-        });
+        }
     }
 }
 
@@ -71,10 +78,11 @@ function displayVehiclesData(data) {
     for (const vehicleId in data.connections.vehicles) {
         if (data.connections.vehicles.hasOwnProperty(vehicleId)) {
             const vehicleData = data.connections.vehicles[vehicleId];
-
+            
             // Create a new row for each vehicle and display relevant information
             const row = document.createElement('tr');
             const idCell = document.createElement('td');
+            const connectionIdCell = document.createElement('td');
             const connectedToCell = document.createElement('td');
             const latitudeCell = document.createElement('td');
             const longitudeCell = document.createElement('td');
@@ -85,6 +93,7 @@ function displayVehiclesData(data) {
 
 
             idCell.textContent = vehicleId;
+            connectionIdCell.textContent = vehicleData["connection-id"];
             connectedToCell.textContent = vehicleData["engagement-connection-id"];
             latitudeCell.textContent = vehicleData.latitude;
             longitudeCell.textContent = vehicleData.longitude;
@@ -94,6 +103,7 @@ function displayVehiclesData(data) {
             sinrCell.textContent = vehicleData.sinr;
 
             row.appendChild(idCell);
+            row.appendChild(connectionIdCell);
             row.appendChild(connectedToCell);
             row.appendChild(latitudeCell);
             row.appendChild(longitudeCell);
@@ -108,10 +118,18 @@ function displayVehiclesData(data) {
     }
 }
 
+function getDetail(type, value){
+    let data = fetch(guidentApi+'/users/'+value).then(data => 
+        data.json().then(json => {
+            console.log(json);
+            return json;
+        }));
+    console.log(data);
+}
 
 // Function to make the API request
-async function fetchData() {
-    const url = 'https://guident.bluepepper.us:8444';
+async function fetchData(guidentServer) {
+    const url = guidentServer
   
     try {
       // Making the request using the fetch API
@@ -121,8 +139,10 @@ async function fetchData() {
       if (response.ok) {
         // Parsing the JSON data from the response
         const jsonData = await response.json();
-        console.log(jsonData);
+        // console.log(jsonData);
         setTimeout(displayDataInTables(jsonData), 5000);
+        return jsonData;
+
       } else {
         // Handling non-OK response status
         console.error('Error:', response.status, response.statusText);
@@ -134,5 +154,5 @@ async function fetchData() {
   }
   
   // Calling the function to initiate the request
-  fetchData();
+  fetchData(guidentServer);
   
