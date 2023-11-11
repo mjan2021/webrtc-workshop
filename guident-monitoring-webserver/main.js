@@ -1,16 +1,6 @@
 console.log('Javascript Loaded!!')
 
-// const getJSON = async url => {
-//     const response = await fetch(url);
-//     console.log(response);
-//     return response.json(); // get JSON from the response 
-//   }
-  
-// console.log("Fetching data...");
-// getJSON("https://guident.bluepepper.us:8444")
-// .then(data => console.log(data));
- // Function to display data
- function displayData(data) {
+function displayData(data) {
     const dataDisplayElement = document.getElementById('data');
 
     // Loop through connections.vehicles
@@ -57,9 +47,14 @@ function displayUsersData(data) {
 
         userIds.forEach(userId => {
             const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            cell.textContent = userId;
-            row.appendChild(cell);
+            const useridCell = document.createElement('td');
+            const connectedToCell = document.createElement('td');
+            useridCell.textContent = userId;
+            connectedToCell.textContent = data.connections.users[userId]["engagement-connection-id"];
+
+            row.appendChild(useridCell);
+            row.appendChild(connectedToCell);
+            
             usersTableBody.appendChild(row);
         });
     }
