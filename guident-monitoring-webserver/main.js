@@ -1,6 +1,61 @@
 console.log('Javascript Loaded!!')
 const guidentApi = 'https://dev.bluepepper.us/api';
 const guidentServer = 'https://guident.bluepepper.us:8444';
+const email = 'sam@guident.co';
+const password = 'secret';
+let accessToken = '';
+
+// Authenticate and make the API request
+// Function to authenticate user and make API request
+async function authenticateAndMakeRequest() {
+   
+    try {
+        const response = await fetch(guidentApi+'/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add any additional headers as needed
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            }),
+        });
+
+        if (response.ok) {
+            // Successful response, handle the data
+            const responseData = await response.json();
+            accessToken = responseData.tokens.accessToken;
+            console.log('Access Token:', accessToken);
+        } else {
+            // Handle error response
+            console.error('Error:', response.status, response.statusText);
+        }
+    } catch (error) {
+        // Handle network or other errors
+        console.error('Error:', error.message);
+    }
+}
+
+
+
+function validateToken(accessToken) {
+   const response = fetch(guidentApi+'/auth/validate-token', {
+            method: 'GET',
+            auth: `Bearer ${accessToken}`,
+            headers: {
+               
+                'Content-Type': 'application/json',
+                // Add any additional headers as needed
+            },
+        });
+    if (response.ok) { console.log('Token Validated'); }
+    else { console.log('Token Invalid'); }
+}
+
+authenticateAndMakeRequest();
+validateToken(accessToken);
+
 function displayData(data) {
     const dataDisplayElement = document.getElementById('data');
 
@@ -119,12 +174,16 @@ function displayVehiclesData(data) {
 }
 
 function getDetail(type, value){
-    let data = fetch(guidentApi+'/users/'+value).then(data => 
-        data.json().then(json => {
+    validateToken(accessToken).then(() => {
+    let data = fetch(guidentApi+'/users/'+value)
+    .then(data => 
+        data.json()
+        .then(json => {
             console.log(json);
             return json;
         }));
     console.log(data);
+    });
 }
 
 // Function to make the API request
