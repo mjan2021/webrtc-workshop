@@ -8,7 +8,7 @@ let accessToken = '';
 // Authenticate and make the API request
 // Function to authenticate user and make API request
 async function authenticateAndMakeRequest() {
-   
+   console.log('Authenticating...')
     try {
         const response = await fetch(guidentApi+'/auth/login', {
             method: 'POST',
@@ -27,34 +27,60 @@ async function authenticateAndMakeRequest() {
             const responseData = await response.json();
             accessToken = responseData.tokens.accessToken;
             console.log('Access Token:', accessToken);
+            return true;
         } else {
             // Handle error response
             console.error('Error:', response.status, response.statusText);
+            return false
         }
     } catch (error) {
         // Handle network or other errors
         console.error('Error:', error.message);
+        return false;
     }
 }
 
 
 
-function validateToken(accessToken) {
-   const response = fetch(guidentApi+'/auth/validate-token', {
-            method: 'GET',
-            auth: `Bearer ${accessToken}`,
-            headers: {
-               
-                'Content-Type': 'application/json',
-                // Add any additional headers as needed
-            },
-        });
-    if (response.ok) { console.log('Token Validated'); }
-    else { console.log('Token Invalid'); }
-}
 
-authenticateAndMakeRequest();
-validateToken(accessToken);
+// Function to validate the access token
+// async function validateToken(accessToken) {
+//     const apiUrl = 'https://dev.bluepepper.us/api/auth/validate-token';
+
+//     try {
+//         const response = await fetch(apiUrl, {
+//             method: 'GET',
+//             headers: {
+//                 'Authorization': `Bearer ${accessToken}`,
+//                 'Content-Type': 'application/json',
+//                 // Add any additional headers as needed
+//             },
+//         });
+
+//         console.log(response)
+
+//         if (response.ok) {
+//             // Token is valid
+//             console.log('Token is valid');
+//         } else if (response.status === 400) {
+//             // Token is invalid or expired
+//             try {
+//                 const errorData = await response.json();
+//                 console.error('Token validation failed:', response.status, errorData.error);
+//             } catch (error) {
+//                 // Handle non-JSON error response
+//                 console.error('Error parsing JSON:', error.message);
+//             }
+//         } else {
+//             // Handle other error responses
+//             console.error('Error:', response.status, response.statusText);
+//         }
+//     } catch (error) {
+//         // Handle network or other errors
+//         console.error('Error:', error.message);
+//     }
+// }
+
 
 function displayData(data) {
     const dataDisplayElement = document.getElementById('data');
@@ -75,7 +101,6 @@ function displayData(data) {
                 <p>RSSI: ${vehicleData.rssi}</p>
                 <p>RSRQ: ${vehicleData.rsrq}</p>
                 <p>SINR: ${vehicleData.sinr}</p>
-                <!-- Add more information as needed -->
             `;
 
             // Append the div to the data display element
@@ -83,11 +108,7 @@ function displayData(data) {
         }
     }
 }
-// Function to display data in tables
-function displayDataInTables(data) {
-    displayUsersData(data);
-    displayVehiclesData(data);
-}
+
 
 
 // Function to display users data
@@ -97,7 +118,7 @@ function displayUsersData(data) {
     for (const userId in data.connections.users) {
         if (data.connections.users.hasOwnProperty(userId)) {
             const userData = data.connections.users[userId];
-            getDetail('first_name', userData["user-id"])
+            // let userDetailsJson = getDetail('first_name', userData["user-id"])
             const row = document.createElement('tr');
             const idCell = document.createElement('td');
             const nameCell = document.createElement('td');
@@ -120,6 +141,13 @@ function displayUsersData(data) {
             usersTableBody.appendChild(row);
         }
     }
+
+    // try{
+    //     getDetail('email', '71')
+    // }
+    // catch(error){
+    //     console.log(error)
+    // }
 }
 
 // Function to display vehicles data
@@ -174,16 +202,24 @@ function displayVehiclesData(data) {
 }
 
 function getDetail(type, value){
-    validateToken(accessToken).then(() => {
-    let data = fetch(guidentApi+'/users/'+value)
-    .then(data => 
-        data.json()
-        .then(json => {
-            console.log(json);
-            return json;
-        }));
-    console.log(data);
-    });
+    // return null;
+    let returnData = null;
+    
+    fetch(guidentApi+'/users/'+value, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+        }
+    })
+    .then(data => data.json()
+         .then(json => {
+             console.log(type+': '+json[type]);
+             returnData = json;
+            })
+         );
+    
+    return returnData;
 }
 
 // Function to make the API request
@@ -192,13 +228,19 @@ async function fetchData(guidentServer) {
   
     try {
       // Making the request using the fetch API
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+        }
+    });
   
       // Checking if the response status is OK (200)
       if (response.ok) {
         // Parsing the JSON data from the response
         const jsonData = await response.json();
-        // console.log(jsonData);
+        console.log(jsonData);
         setTimeout(displayDataInTables(jsonData), 5000);
         return jsonData;
 
@@ -211,7 +253,17 @@ async function fetchData(guidentServer) {
       console.error('Error:', error.message);
     }
   }
-  
-  // Calling the function to initiate the request
-  fetchData(guidentServer);
-  
+
+  // Function to display data in tables
+function displayDataInTables(data) {
+    displayUsersData(data);
+    displayVehiclesData(data);
+}
+
+// Calling the function to initiate the request
+if(authenticateAndMakeRequest()){
+    console.log('Authenticated!!')
+    fetchData(guidentServer);
+
+}
+// validateToken(accessToken);
