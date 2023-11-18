@@ -28,3 +28,26 @@ body {
     background-repeat: no-repeat;
     background-size: contain;
 }
+
+.small-image {
+    display: none;
+    position: relative;
+    width: 100px; /* Adjust the width as needed */
+    height: 50px; /* Adjust the height as needed */
+    background-image: url('/guident-monitoring-webserver/assets/gemE4.png'); /* Replace with the URL of your image */
+    background-size: cover;
+}
+
+/* Apply the small image class when hovering over a table row */
+#users-table tbody:hover::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: inherit; /* Adjust the position as needed */
+    left: inherit; /* Adjust the position as needed */
+    transform: translate(-50%, -50%);
+    width: 80px; /* Same as the image width */
+    height: 50px; /* Same as the image height */
+    background-image: url('/guident-monitoring-webserver/assets/gemE4.png'); /* Replace with the URL of your image */
+    background-size: cover;
+}

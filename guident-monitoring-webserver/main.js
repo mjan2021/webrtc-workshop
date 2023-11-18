@@ -27,7 +27,7 @@ async function authenticateAndMakeRequest() {
             // Successful response, handle the data
             const responseData = await response.json();
             accessToken = responseData.tokens.accessToken;
-            console.log('Access Token:', accessToken);
+            // console.log('Access Token:', accessToken);
             return true;
         } else {
             // Handle error response
@@ -106,7 +106,7 @@ function displayUsersData(data) {
                     connectedToCell.textContent = userData["engagement-connection-id"];
                     
                     var connectedAtData = new Date(0);
-                    connectedAtData.setUTCSeconds(userData["connectedAt"]);
+                    connectedAtData.setUTCMilliseconds(userData["connectedAt"]);
                     connectedAtCell.textContent = connectedAtData;
                     
                     row.appendChild(idCell);
@@ -141,6 +141,7 @@ function displayVehiclesData(data) {
             // Create a new row for each vehicle and display relevant information
             const row = document.createElement('tr');
             const idCell = document.createElement('td');
+            const plateNumberCell = document.createElement('td'); 
             const connectionIdCell = document.createElement('td');
             const connectedToCell = document.createElement('td');
             const latitudeCell = document.createElement('td');
@@ -150,28 +151,42 @@ function displayVehiclesData(data) {
             const rsrqCell = document.createElement('td');
             const sinrCell = document.createElement('td');
 
-            idCell.textContent = vehicleId;
-            connectionIdCell.textContent = vehicleData["connection-id"];
-            connectedToCell.textContent = vehicleData["engagement-connection-id"];
-            latitudeCell.textContent = vehicleData.latitude;
-            longitudeCell.textContent = vehicleData.longitude;
-            speedCell.textContent = vehicleData.speed;
-            rssiCell.textContent = vehicleData.rssi;
-            rsrqCell.textContent = vehicleData.rsrq;
-            sinrCell.textContent = vehicleData.sinr;
+            var resp = fetch(guidentApi+'/vehicles/'+vehicleId, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                }
+                }).then(data => { data.json()
+                    .then((json) => {
+                        console.log(json)
 
-            row.appendChild(idCell);
-            row.appendChild(connectionIdCell);
-            row.appendChild(connectedToCell);
-            row.appendChild(latitudeCell);
-            row.appendChild(longitudeCell);
-            row.appendChild(speedCell);
-            row.appendChild(rssiCell);
-            row.appendChild(rsrqCell);
-            row.appendChild(sinrCell);
+                    
+                    idCell.textContent = vehicleId;
+                    plateNumberCell.textContent = json["license_plate"];
+                    connectionIdCell.textContent = vehicleData["connection-id"];
+                    connectedToCell.textContent = vehicleData["engagement-connection-id"];
+                    latitudeCell.textContent = vehicleData.latitude;
+                    longitudeCell.textContent = vehicleData.longitude;
+                    speedCell.textContent = vehicleData.speed;
+                    rssiCell.textContent = vehicleData.rssi;
+                    rsrqCell.textContent = vehicleData.rsrq;
+                    sinrCell.textContent = vehicleData.sinr;
 
-            // Append the row to the table body
-            vehiclesTableBody.appendChild(row);
+                    row.appendChild(idCell);
+                    row.appendChild(connectionIdCell);
+                    row.appendChild(connectedToCell);
+                    row.appendChild(latitudeCell);
+                    row.appendChild(longitudeCell);
+                    row.appendChild(speedCell);
+                    row.appendChild(rssiCell);
+                    row.appendChild(rsrqCell);
+                    row.appendChild(sinrCell);
+                    
+                    // Append the row to the table body
+                    vehiclesTableBody.appendChild(row);
+                });
+            })
         }
     }
 }
@@ -213,7 +228,7 @@ async function fetchData(guidentServer) {
         // Parsing the JSON data from the response
         const jsonData = await response.json();
         console.log(jsonData);
-        setTimeout(displayDataInTables(jsonData), 5000);
+        displayDataInTables(jsonData);
         return jsonData;
 
       } else {
@@ -232,10 +247,25 @@ function displayDataInTables(data) {
     displayVehiclesData(data);
 }
 
+function startTimer() {
+
+    var timer = 0
+    setInterval(()=>{
+        // console.log(timer++)
+        if (timer == 30){window.location.reload()}
+
+    },1000);
+
+    
+}
+
 // Calling the function to initiate the request
 if(authenticateAndMakeRequest()){
     console.log('Authenticated!!')
     fetchData(guidentServer);
+    startTimer();
+    // setInterval( window.location.reload(), 10000);
 
 }
+
 // validateToken(accessToken);
