@@ -43,46 +43,6 @@ async function authenticateAndMakeRequest() {
 
 
 
-
-// Function to validate the access token
-// async function validateToken(accessToken) {
-//     const apiUrl = 'https://dev.bluepepper.us/api/auth/validate-token';
-
-//     try {
-//         const response = await fetch(apiUrl, {
-//             method: 'GET',
-//             headers: {
-//                 'Authorization': `Bearer ${accessToken}`,
-//                 'Content-Type': 'application/json',
-//                 // Add any additional headers as needed
-//             },
-//         });
-
-//         console.log(response)
-
-//         if (response.ok) {
-//             // Token is valid
-//             console.log('Token is valid');
-//         } else if (response.status === 400) {
-//             // Token is invalid or expired
-//             try {
-//                 const errorData = await response.json();
-//                 console.error('Token validation failed:', response.status, errorData.error);
-//             } catch (error) {
-//                 // Handle non-JSON error response
-//                 console.error('Error parsing JSON:', error.message);
-//             }
-//         } else {
-//             // Handle other error responses
-//             console.error('Error:', response.status, response.statusText);
-//         }
-//     } catch (error) {
-//         // Handle network or other errors
-//         console.error('Error:', error.message);
-//     }
-// }
-
-
 function displayData(data) {
     const dataDisplayElement = document.getElementById('data');
 
@@ -129,7 +89,7 @@ function displayUsersData(data) {
             const connectedToCell = document.createElement('td');
             const connectedAtCell = document.createElement('td');
 
-            var resp = fetch(guidentApi+'/users/'+userData['user-id'], {
+            var resp = fetch(guidentApi+'/users/'+userId, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -144,7 +104,8 @@ function displayUsersData(data) {
                     idCell.textContent = userData["user-id"];
                     connectionIdCell.textContent = userData["connection-id"];
                     connectedToCell.textContent = userData["engagement-connection-id"];
-                    var connectedAtData = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                    
+                    var connectedAtData = new Date(0);
                     connectedAtData.setUTCSeconds(userData["connectedAt"]);
                     connectedAtCell.textContent = connectedAtData;
                     
@@ -163,12 +124,6 @@ function displayUsersData(data) {
         }
     }
 
-    // try{
-    //     getDetail('email', '71')
-    // }
-    // catch(error){
-    //     console.log(error)
-    // }
 }
 
 // Function to display vehicles data

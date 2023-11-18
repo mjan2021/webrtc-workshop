@@ -1,3 +1,30 @@
-body{
-    background-color: whitesmoke;
+/* body{
+    background: linear-gradient(180deg, #6c002c 0%, #3d0028 100%);
+    background-image: url('./assets/testHex.svg');
+} */
+:root{
+    --primary-text: white;
+    --secondary-text: #70042c;
+    --third-text: black;
+  
+    --primary-color: #6c002c;
+    --secondary-color: #e31837;
+  }
+html,
+body {
+  height: 100%;
+  color: white;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  text-decoration-color: azure;
+  background: linear-gradient(180deg, #6c002c 0%, #3d0028 100%);
+}
+
+.bg{
+    background: url("assets/textHex.svg");
+    background-image: url("assets/testHex.svg");
+    background-repeat: no-repeat;
+    background-size: contain;
 }
