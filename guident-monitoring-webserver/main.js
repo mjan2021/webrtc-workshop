@@ -4,6 +4,7 @@ const guidentServer = 'https://guident.bluepepper.us:8444';
 const email = 'sam@guident.co';
 const password = 'secret';
 let accessToken = '';
+let returnData = null;
 
 // Authenticate and make the API request
 // Function to authenticate user and make API request
@@ -121,24 +122,44 @@ function displayUsersData(data) {
             // let userDetailsJson = getDetail('first_name', userData["user-id"])
             const row = document.createElement('tr');
             const idCell = document.createElement('td');
-            const nameCell = document.createElement('td');
+            const firstNameCell = document.createElement('td');
+            const lastNameCell = document.createElement('td');
+            const emailCell = document.createElement('td');
             const connectionIdCell = document.createElement('td');
             const connectedToCell = document.createElement('td');
             const connectedAtCell = document.createElement('td');
 
-            idCell.textContent = userData["user-id"];
-            nameCell.textContent = userData["user-name"];
-            connectionIdCell.textContent = userData["connection-id"];
-            connectedToCell.textContent = userData["engagement-connection-id"];
-            connectedAtCell.textContent = userData["connectedAt"];
+            var resp = fetch(guidentApi+'/users/'+userData['user-id'], {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }).then(data => { data.json()
+                .then((json) => {
+                    console.log(json)
+                    firstNameCell.textContent = json['first_name'];
+                    lastNameCell.textContent = json['last_name'];
+                    emailCell.textContent = json['email'];
+                    idCell.textContent = userData["user-id"];
+                    connectionIdCell.textContent = userData["connection-id"];
+                    connectedToCell.textContent = userData["engagement-connection-id"];
+                    var connectedAtData = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                    connectedAtData.setUTCSeconds(userData["connectedAt"]);
+                    connectedAtCell.textContent = connectedAtData;
+                    
+                    row.appendChild(idCell);
+                    row.appendChild(firstNameCell);
+                    row.appendChild(lastNameCell);
+                    row.appendChild(emailCell);
+                    row.appendChild(connectionIdCell);
+                    row.appendChild(connectedToCell);
+                    row.appendChild(connectedAtCell);
+                    
+                    usersTableBody.appendChild(row);
 
-            row.appendChild(idCell);
-            row.appendChild(nameCell);
-            row.appendChild(connectionIdCell);
-            row.appendChild(connectedToCell);
-            row.appendChild(connectedAtCell);
-
-            usersTableBody.appendChild(row);
+                })
+            });
         }
     }
 
@@ -174,7 +195,6 @@ function displayVehiclesData(data) {
             const rsrqCell = document.createElement('td');
             const sinrCell = document.createElement('td');
 
-
             idCell.textContent = vehicleId;
             connectionIdCell.textContent = vehicleData["connection-id"];
             connectedToCell.textContent = vehicleData["engagement-connection-id"];
@@ -203,7 +223,6 @@ function displayVehiclesData(data) {
 
 function getDetail(type, value){
     // return null;
-    let returnData = null;
     
     fetch(guidentApi+'/users/'+value, {
         method: 'GET',
@@ -218,8 +237,6 @@ function getDetail(type, value){
              returnData = json;
             })
          );
-    
-    return returnData;
 }
 
 // Function to make the API request
