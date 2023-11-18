@@ -191,6 +191,21 @@ function displayVehiclesData(data) {
     }
 }
 
+// function getCustomerData(){
+//     fetch(guidentApi+'/customers/', {
+//         method: 'GET',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             Authorization: `Bearer ${accessToken}`,
+//         }
+//     }).then(data => data.json()
+//         .then(json => {
+//             console.log(type+': '+json[type]);
+//             returnData = json;
+//         })
+//     );
+// }
+
 function getDetail(type, value){
     // return null;
     
@@ -198,7 +213,7 @@ function getDetail(type, value){
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`
         }
     })
     .then(data => data.json()
@@ -251,12 +266,10 @@ function startTimer() {
 
     var timer = 0
     setInterval(()=>{
-        // console.log(timer++)
-        if (timer == 30){window.location.reload()}
-
+        if (timer == 30) {
+            window.location.reload()
+        }
     },1000);
-
-    
 }
 
 // Calling the function to initiate the request
@@ -264,6 +277,7 @@ if(authenticateAndMakeRequest()){
     console.log('Authenticated!!')
     fetchData(guidentServer);
     startTimer();
+    // getCustomerData();
     // setInterval( window.location.reload(), 10000);
 
 }
