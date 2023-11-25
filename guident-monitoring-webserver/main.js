@@ -140,6 +140,7 @@ function displayVehiclesData(data) {
             
             // Create a new row for each vehicle and display relevant information
             const row = document.createElement('tr');
+            const vehicleTypeCell = document.createElement('td');
             const idCell = document.createElement('td');
             const plateNumberCell = document.createElement('td'); 
             const connectionIdCell = document.createElement('td');
@@ -161,7 +162,7 @@ function displayVehiclesData(data) {
                     .then((json) => {
                         console.log(json)
 
-                    
+                    vehicleTypeCell.textContent = '<img src="./assets/gemE4.png" style="width:60px;height40pc;">'
                     idCell.textContent = vehicleId;
                     plateNumberCell.textContent = json["license_plate"];
                     connectionIdCell.textContent = vehicleData["connection-id"];
@@ -191,20 +192,69 @@ function displayVehiclesData(data) {
     }
 }
 
-// function getCustomerData(){
-//     fetch(guidentApi+'/customers/', {
-//         method: 'GET',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             Authorization: `Bearer ${accessToken}`,
-//         }
-//     }).then(data => data.json()
-//         .then(json => {
-//             console.log(type+': '+json[type]);
-//             returnData = json;
-//         })
-//     );
-// }
+
+// Function to display VTU Request data
+function displayVtuRequestData(data) {
+    const vtuRequestTableBody = document.getElementById('vtu-request-table').getElementsByTagName('tbody')[0];
+
+    // Loop through connections.vehicles
+    for (const vehicleId in data['vtu-reset-requests']) {
+        if (data['vtu-reset-requests'].hasOwnProperty(vehicleId)) {
+            const requestData = data['vtu-reset-requests'][vehicleId];
+            
+            // Create a new row for each vehicle and display relevant information
+            const row = document.createElement('tr');
+            const idCell = document.createElement('td');
+            const licensePlateCell = document.createElement('td');
+            const customerIdCell = document.createElement('td');
+            const uniqueIdCell = document.createElement('td');
+            const requestStatusCell = document.createElement('td');
+            const requestedByCell = document.createElement('td');
+
+            var resp = fetch(guidentApi+'/vehicles/'+vehicleId, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                }
+                }).then(data => { data.json()
+                    .then((json) => {
+                        console.log(json)
+
+                        idCell.textContent = requestData["vehicle-id"];
+                        licensePlateCell.textContent = json["license_plate"];
+                        customerIdCell.textContent = json["customer_id"];
+                        uniqueIdCell.textContent = requestData["unique-vehicle-id"];
+                        requestStatusCell.textContent = requestData["reset-vtu-requested"];
+                        requestedByCell.textContent = requestData["reset-vtu-requested-by"];
+            
+                        row.appendChild(idCell);
+                        row.appendChild(licensePlateCell);
+                        row.appendChild(customerIdCell);
+                        row.appendChild(uniqueIdCell);
+                        row.appendChild(requestStatusCell);
+                        row.appendChild(requestedByCell);
+            
+                        vtuRequestTableBody.appendChild(row);
+                });
+            })
+        }
+    }
+}
+
+
+function getCustomerData(customerId){
+    fetch(guidentApi+'/customers/'+customerId, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            }
+                }).then(
+                    data => data.json()
+                    .then(json => {console.log(json)})
+                );
+}
 
 function getDetail(type, value){
     // return null;
@@ -260,6 +310,7 @@ async function fetchData(guidentServer) {
 function displayDataInTables(data) {
     displayUsersData(data);
     displayVehiclesData(data);
+    displayVtuRequestData(data);
 }
 
 function startTimer() {
@@ -277,7 +328,7 @@ if(authenticateAndMakeRequest()){
     console.log('Authenticated!!')
     fetchData(guidentServer);
     startTimer();
-    // getCustomerData();
+    getCustomerData('3');
     // setInterval( window.location.reload(), 10000);
 
 }
